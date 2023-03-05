@@ -10,17 +10,19 @@ import {
 import { classNames } from '@/utils';
 import Image from 'next/image';
 import logo from '@/public/logo.svg';
+import { usePathname } from 'next/navigation';
 
 export default function Sidebar({sites, children}){
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const current_path = usePathname();
 
   const getAuthNav = () => {
     const name = 'Authorization Info';
-    const current = true;
+    const current = current_path === '/auth-info';
     return (
       <a
       key="auth-info"
-      href='/'
+      href='/auth-info'
       className={classNames(
           current ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
           'group flex items-center px-2 py-2 text-sm font-medium rounded-md'
@@ -107,7 +109,10 @@ export default function Sidebar({sites, children}){
                               <a
                               key={item.id}
                               href={`/site/${item.id}`}
-                              className="group flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                              className={classNames(
+                                current_path === `/site/${item.id}` ? "bg-gray-100 text-gray-900" : "text-gray-600",
+                              "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-50 hover:text-gray-900"
+                              )}
                               >
                               <span className="truncate">{item.displayName}</span>
                               </a>
@@ -150,7 +155,10 @@ export default function Sidebar({sites, children}){
                           <a
                           key={item.id}
                           href={`/site/${item.id}`}
-                          className="group flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                          className={classNames(
+                            current_path === `/site/${item.id}` ? "bg-gray-100 text-gray-900" : "text-gray-600",
+                          "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-50 hover:text-gray-900"
+                          )}
                           >
                           <span className="truncate">{item.displayName}</span>
                           </a>
