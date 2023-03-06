@@ -41,6 +41,13 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL('/auth-info', request.url));
   }
 
+  // If navigating to a site, default to the pages page
+  if (/^\/site\/[\w-]+$/.test(request.nextUrl.pathname)) {
+    const redirectUrl = new URL(request.nextUrl.href);
+    redirectUrl.pathname += '/pages';
+    return NextResponse.redirect(redirectUrl);  
+  }
+
   // Else default to proceeding to the next middleware
   return NextResponse.next();
 }

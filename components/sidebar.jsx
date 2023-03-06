@@ -24,13 +24,13 @@ export default function Sidebar({sites, children}){
       key="auth-info"
       href='/auth-info'
       className={classNames(
-          current ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+          current ? 'bg-gray-100 text-blue-600' : 'text-gray-600 hover:bg-gray-50 hover:text-blue-600',
           'group flex items-center px-2 py-2 text-sm font-medium rounded-md'
       )}
       >
       <ShieldCheckIcon
           className={classNames(
-          current ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500',
+          current ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-500',
           'mr-3 flex-shrink-0 h-6 w-6'
           )}
           aria-hidden="true"
@@ -110,8 +110,8 @@ export default function Sidebar({sites, children}){
                               key={item.id}
                               href={`/site/${item.id}`}
                               className={classNames(
-                                current_path === `/site/${item.id}` ? "bg-gray-100 text-gray-900" : "text-gray-600",
-                              "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-50 hover:text-gray-900"
+                                current_path === `/site/${item.id}` ? "bg-gray-100 text-blue-600" : "text-gray-600",
+                              "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-50 hover:text-blue-600"
                               )}
                               >
                               <span className="truncate">{item.displayName}</span>
@@ -156,8 +156,8 @@ export default function Sidebar({sites, children}){
                           key={item.id}
                           href={`/site/${item.id}`}
                           className={classNames(
-                            current_path === `/site/${item.id}` ? "bg-gray-100 text-gray-900" : "text-gray-600",
-                          "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-50 hover:text-gray-900"
+                            current_path === `/site/${item.id}` ? "bg-gray-100 text-blue-600" : "text-gray-600",
+                          "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-50 hover:text-blue-600"
                           )}
                           >
                           <span className="truncate">{item.displayName}</span>
@@ -174,7 +174,7 @@ export default function Sidebar({sites, children}){
         <div className="sticky top-0 z-10 bg-white pl-1 pt-1 sm:pl-3 sm:pt-3 md:hidden">
           <button
             type="button"
-            className="-ml-0.5 -mt-0.5 inline-flex h-12 w-12 items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+            className="-ml-0.5 -mt-0.5 inline-flex h-12 w-12 items-center justify-center rounded-md text-gray-500 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
             onClick={() => setSidebarOpen(true)}
           >
             <span className="sr-only">Open sidebar</span>
