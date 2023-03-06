@@ -1,7 +1,8 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { BellAlertIcon, BuildingStorefrontIcon, UserGroupIcon, CircleStackIcon, CodeBracketIcon, DocumentDuplicateIcon, RssIcon } from '@heroicons/react/24/outline';
+
+import { BellAlertIcon, BuildingStorefrontIcon, UserGroupIcon, CircleStackIcon, CodeBracketIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 
 import { classNames } from '@/utils';
 
