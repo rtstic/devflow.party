@@ -1,22 +1,23 @@
 import { cookies } from 'next/headers';
 import { getAPIClient } from '@/utils/webflow_helper'
 import Image from 'next/image';
-import { classNames } from '@/utils';
-import { BellAlertIcon, BuildingStorefrontIcon, UserGroupIcon, CircleStackIcon, CodeBracketIcon, DocumentDuplicateIcon, RssIcon } from '@heroicons/react/24/outline';
+import { Tab } from '@/components';
+
 
 export default async function SiteLayout({ params: { id: siteId }, children }) {
   const cookieStore = cookies();
   const webflowAuth = cookieStore.get('webflow_auth').value;
   const webflowAPI = getAPIClient(webflowAuth);
   const [site, pages] = await Promise.all([webflowAPI.site({siteId}), webflowAPI.pages({siteId})]);
+
   const tabs = [
-    { name: 'Pages', href: '#', icon: DocumentDuplicateIcon, current: true, disabled: false },
-    { name: 'Custom Code', href: '#', icon: CodeBracketIcon, current: false, disabled: true },
-    { name: 'Webhooks', href: '#', icon: BellAlertIcon, current: false, disabled: true },
-    { name: 'CMS', href: '#', icon: CircleStackIcon, current: false, disabled: true },
-    { name: 'Ecommerce', href: '#', icon: BuildingStorefrontIcon, current: false, disabled: true },
-    { name: 'Memberships', href: '#', icon: UserGroupIcon, current: false, disabled: true },
-  ]
+    'pages',
+    'custom-code',
+    'webhooks',
+    'cms',
+    'ecommerce',
+    'memberships',
+  ];
 
   const getSiteInfo = () => {
     return (
@@ -66,29 +67,7 @@ export default async function SiteLayout({ params: { id: siteId }, children }) {
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8 px-4 sm:px-6" aria-label="Tabs">
               {tabs.map((tab) => (
-                <a
-                  key={tab.name}
-                  href={tab.href}
-                  disabled={tab.disabled}
-                  className={classNames(
-                    tab.current
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-500',
-                    tab.disabled ? 'cursor-not-allowed' : 'cursor-pointer hover:border-blue-600 hover:text-blue-600',
-                    'group inline-flex items-center border-b-2 py-4 px-1 text-sm font-medium'
-                  )}
-                  aria-current={tab.current ? 'page' : undefined}
-                >
-                  <tab.icon
-                    className={classNames(
-                      tab.current ? 'text-blue-600' : 'text-gray-400',
-                      tab.disabled ? '' : 'group-hover:text-blue-600',
-                      '-ml-0.5 mr-2 h-5 w-5'
-                    )}
-                    aria-hidden="true"
-                  />
-                  <span>{tab.name}</span>
-                </a>
+                <Tab key={tab} type={tab} siteId={siteId} />
               ))}
             </nav>
           </div>
