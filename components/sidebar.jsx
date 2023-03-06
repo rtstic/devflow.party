@@ -18,7 +18,7 @@ export default function Sidebar({sites, children}){
 
   const getAuthNav = () => {
     const name = 'Authorization Info';
-    const current = current_path === '/auth-info';
+    const current = current_path.startsWith('/auth-info');
     return (
       <a
       key="auth-info"
@@ -110,7 +110,7 @@ export default function Sidebar({sites, children}){
                               key={item.id}
                               href={`/site/${item.id}`}
                               className={classNames(
-                                current_path === `/site/${item.id}` ? "bg-gray-100 text-blue-600" : "text-gray-600",
+                                current_path.startsWith(`/site/${item.id}`) ? "bg-gray-100 text-blue-600" : "text-gray-600",
                               "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-50 hover:text-blue-600"
                               )}
                               >
@@ -156,7 +156,7 @@ export default function Sidebar({sites, children}){
                           key={item.id}
                           href={`/site/${item.id}`}
                           className={classNames(
-                            current_path === `/site/${item.id}` ? "bg-gray-100 text-blue-600" : "text-gray-600",
+                            current_path.startsWith(`/site/${item.id}`) ? "bg-gray-100 text-blue-600" : "text-gray-600",
                           "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-50 hover:text-blue-600"
                           )}
                           >
@@ -170,7 +170,7 @@ export default function Sidebar({sites, children}){
           </div>
         </div>
       </div>
-      <div className="flex flex-1 flex-col md:pl-64">
+      <div className="flex flex-col h-full md:pl-64">
         <div className="sticky top-0 z-10 bg-white pl-1 pt-1 sm:pl-3 sm:pt-3 md:hidden">
           <button
             type="button"

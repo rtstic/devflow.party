@@ -5,10 +5,11 @@ import { Tab } from '@/components';
 
 
 export default async function SiteLayout({ params: { id: siteId }, children }) {
+  // TODO: Stop duplicating this code
   const cookieStore = cookies();
   const webflowAuth = cookieStore.get('webflow_auth').value;
   const webflowAPI = getAPIClient(webflowAuth);
-  const [site, pages] = await Promise.all([webflowAPI.site({siteId}), webflowAPI.pages({siteId})]);
+  const site = await webflowAPI.site({siteId});
 
   const tabs = [
     'pages',
@@ -62,7 +63,7 @@ export default async function SiteLayout({ params: { id: siteId }, children }) {
 
   const getSiteTabs = () => {
     return (
-      <div className="overflow-hidden bg-white shadow sm:rounded-lg">
+      <div className="bg-white shadow sm:rounded-lg flex-1">
         <div className="block">
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8 px-4 sm:px-6" aria-label="Tabs">
@@ -80,7 +81,7 @@ export default async function SiteLayout({ params: { id: siteId }, children }) {
   }
 
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="flex flex-col h-full space-y-4">
       {getSiteInfo()}
       {getSiteTabs()}
     </div>
