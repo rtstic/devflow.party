@@ -11,6 +11,7 @@ export default async function AuthenticatedLayout({ children }) {
   // We can't pass an object that has non-serializable values such as functions, promises, or classes,
   // which can cause issues when trying to rehydrate the component on the client. e.g. the Sidebar.
   // Below we serialize and then deserialize the data, effectively creating a new plain object.
+  // TODO: Find a better way to do this.
   const plainSites = JSON.parse(JSON.stringify(sites));
   return (
     <Sidebar sites={plainSites}>

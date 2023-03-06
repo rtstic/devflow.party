@@ -9,6 +9,12 @@ import { getAccessToken } from '@/utils/webflow_helper';
  * @returns {import('next/dist/next-server/server/api-utils').NextApiResponse} - The Next.js API response object.
  */
 export async function middleware(request) {
+  // if ((request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/') && request.cookies.get('webflow_auth')) {
+  //   return NextResponse.redirect(new URL('/auth-info', request.url));
+  // }
+
+  // TODO: If access denied in query params then customer rejected install request,
+  // redirect them login or home page with error message depending on their current auth state.
   // If the request has a code parameter, attempt to get an access token
   if (request.nextUrl.pathname === '/' && request.nextUrl.searchParams.get('code')) {
     try {
@@ -35,12 +41,6 @@ export async function middleware(request) {
     // TODO: Fix the bug where we're redirected to login after authenticating the user.
     return NextResponse.redirect(new URL('/login', request.url));
   }
-
-  // If authorized request is attempting to go home, redirect to the auth-info page
-  if (request.nextUrl.pathname === '/') {
-    return NextResponse.redirect(new URL('/auth-info', request.url));
-  }
-
   // If navigating to a site, default to the pages page
   if (/^\/site\/[\w-]+$/.test(request.nextUrl.pathname)) {
     const redirectUrl = new URL(request.nextUrl.href);

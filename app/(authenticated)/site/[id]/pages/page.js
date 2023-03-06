@@ -7,10 +7,12 @@ export default async function PageTab({ params: { id: siteId } }){
   const webflowAuth = cookieStore.get('webflow_auth').value;
   const webflowAPI = getAPIClient(webflowAuth);
   const pages = await webflowAPI.pages({siteId});
+  const plainPages = JSON.parse(JSON.stringify(pages));
+
   // TODO: Add pagination component: https://tailwindui.com/components/application-ui/navigation/pagination#component-f9a9347de5384a492c79c34cf6ce3ccf
   return (
     <div className="mt-4 flow-root">
-      <PageList pages={pages} />
+      <PageList pages={plainPages} />
     </div>
   )
 }
