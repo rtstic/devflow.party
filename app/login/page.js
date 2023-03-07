@@ -2,10 +2,9 @@ import LockClosedIcon from '@heroicons/react/24/solid/LockClosedIcon';
 import { getInstallUrl } from '@/utils/webflow_helper';
 import Image from 'next/image';
 import logo from '@/public/logo.svg';
+import Link from 'next/link';
 
 export default function Login() {
-
-
     return (
         <div className="flex min-h-full items-center justify-center py-12 h-screen px-4 sm:px-6 lg:px-8">
             <div className="w-full max-w-md space-y-8">
@@ -23,7 +22,7 @@ export default function Login() {
                     </p>
                 </div>
                 <div className="mt-8 space-y-6">
-                    <a
+                    <Link
                     href={getInstallUrl()}
                     className="group relative flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
@@ -31,7 +30,7 @@ export default function Login() {
                         <LockClosedIcon className="h-5 w-5 text-blue-500 group-hover:text-blue-400" aria-hidden="true" />
                     </span>
                     Login
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>        

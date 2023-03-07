@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 
-import { getAPIClient } from '@/utils/webflow_helper'
+import { getAPIClient, getInstallUrl } from '@/utils/webflow_helper'
 import { LogoutButton, ReauthorizeButton } from '@/components/buttons';
 
 export default async function Home() {
@@ -13,14 +13,14 @@ export default async function Home() {
   const authLevel = workspaces.length > 0 ? 'Workspace' : sites.length > 0 ? 'Site' : 'User';
   const { name, description, homepage } = application;
   const { firstName, lastName, email } = user.user; // this feels like a bug somewhere.
-
+  const url = getInstallUrl();
   return (
     <div className="flex flex-col space-y-4">
       <Stats authLevel={authLevel} rateLimit={rateLimit} />
       <AppInfo name={name} description={description} homepage={homepage} />
       <UserInfo name={`${firstName} ${lastName}`} email={email} />
       <div className="flex flex-row-reverse space-x-4 space-x-reverse">
-        <ReauthorizeButton />
+        <ReauthorizeButton installUrl={url} />
         <LogoutButton />
       </div>
     </div>
