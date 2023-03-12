@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 import { BellAlertIcon, BuildingStorefrontIcon, UserGroupIcon, CircleStackIcon, CodeBracketIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
 
@@ -10,17 +11,17 @@ export function Tab({type, siteId}) {
   const getTabData = () => {
     switch (type) {
       case 'pages':
-        return { name: 'Pages', href: `${siteId}/pages`, icon: DocumentDuplicateIcon, disabled: false };
+        return { name: 'Pages', href: `/site/${siteId}/pages`, icon: DocumentDuplicateIcon, disabled: false };
       case 'custom-code':
-        return { name: 'Custom Code', href: `${siteId}/custom-code`, icon: CodeBracketIcon, disabled: true };
+        return { name: 'Custom Code', href: `/site/${siteId}/custom-code`, icon: CodeBracketIcon, disabled: false };
       case 'webhooks':
-        return { name: 'Webhooks', href: `${siteId}/webhooks`, icon: BellAlertIcon, disabled: true };
+        return { name: 'Webhooks', href: `/site/${siteId}/webhooks`, icon: BellAlertIcon, disabled: true };
       case 'cms':
-        return { name: 'CMS', href: `${siteId}/cms`, icon: CircleStackIcon, disabled: true };
+        return { name: 'CMS', href: `/site/${siteId}/cms`, icon: CircleStackIcon, disabled: true };
       case 'ecommerce':
-        return { name: 'Ecommerce', href: `${siteId}/ecommerce`, icon: BuildingStorefrontIcon, disabled: true };
+        return { name: 'Ecommerce', href: `/site/${siteId}/ecommerce`, icon: BuildingStorefrontIcon, disabled: true };
       default:
-        return { name: 'Memberships', href: `${siteId}/memberships`, icon: UserGroupIcon, disabled: true };
+        return { name: 'Memberships', href: `/site/${siteId}/memberships`, icon: UserGroupIcon, disabled: true };
     }
   };
 
@@ -28,10 +29,9 @@ export function Tab({type, siteId}) {
   const tab_data = getTabData();
   const current = current_path.includes(tab_data.href);
   return (
-    <a
+    <Link
     key={tab_data.name}
-    href={tab_data.href}
-    disabled={tab_data.disabled}
+    href={tab_data.disabled ? '/' : tab_data.href}
     className={classNames(
       current
         ? 'border-blue-600 text-blue-600'
@@ -50,6 +50,6 @@ export function Tab({type, siteId}) {
       aria-hidden="true"
     />
     <span>{tab_data.name}</span>
-  </a>
+  </Link>
   )    
 }

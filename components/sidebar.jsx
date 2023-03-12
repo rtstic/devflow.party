@@ -10,7 +10,8 @@ import {
 import { classNames } from '@/utils';
 import Image from 'next/image';
 import logo from '@/public/logo.svg';
-import { usePathname } from 'next/navigation';
+import { usePathname,  } from 'next/navigation';
+import Link from 'next/link';
 
 export default function Sidebar({sites, children}){
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -20,7 +21,7 @@ export default function Sidebar({sites, children}){
     const name = 'Authorization Info';
     const current = current_path.startsWith('/auth-info');
     return (
-      <a
+      <Link
       key="auth-info"
       href='/auth-info'
       className={classNames(
@@ -36,7 +37,7 @@ export default function Sidebar({sites, children}){
           aria-hidden="true"
       />
       {name}
-      </a>
+      </Link>
     )
   }
 
@@ -106,7 +107,7 @@ export default function Sidebar({sites, children}){
                           </h3>
                           <div className="space-y-1" role="group" aria-labelledby="projects-headline">
                             {sites.map((item) => (
-                              <a
+                              <Link
                               key={item.id}
                               href={`/site/${item.id}`}
                               className={classNames(
@@ -115,7 +116,7 @@ export default function Sidebar({sites, children}){
                               )}
                               >
                               <span className="truncate">{item.displayName}</span>
-                              </a>
+                              </Link>
                             ))}
                           </div>
                         </div>
@@ -152,7 +153,7 @@ export default function Sidebar({sites, children}){
                       </h3>
                       <div className="space-y-1" role="group" aria-labelledby="projects-headline">
                           {sites.map((item) => (
-                          <a
+                          <Link
                           key={item.id}
                           href={`/site/${item.id}`}
                           className={classNames(
@@ -161,7 +162,7 @@ export default function Sidebar({sites, children}){
                           )}
                           >
                           <span className="truncate">{item.displayName}</span>
-                          </a>
+                          </Link>
                           ))}
                       </div>
                   </div>
