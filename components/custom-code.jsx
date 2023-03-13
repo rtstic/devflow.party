@@ -31,8 +31,8 @@ const items = [
 ]
 
 export default function CustomCode({ siteId, savedCode }) {
-  const [lastUpdated, setLastUpdated] = useState(savedCode ? savedCode.lastUpdated : null);
-  const [code, setCode] = useState(savedCode.code || '');
+  const [lastUpdated, setLastUpdated] = useState(savedCode?.lastUpdated || null);
+  const [code, setCode] = useState(savedCode?.code || '');
   const [lineCount, setLineCount] = useState(code.split('\n').length);
   const [showEditView, setShowEditView] = useState(savedCode ? true : false);
 
@@ -54,6 +54,32 @@ export default function CustomCode({ siteId, savedCode }) {
     }
   }
 
+  const deleteCode = async () => {
+    if (lastUpdated) {
+      try {
+        const response = await fetch('/api/custom-code', {
+          method: 'DELETE',
+          body: JSON.stringify({ siteId }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const res = await response.json();
+        if (res.deleted) {
+          setCode('');
+          setLastUpdated(null);
+          setShowEditView(false);
+        }
+      } catch (error) {
+        console.error('Error deleting code on server:', error);
+      }
+    }
+    if (!savedCode?.code){
+      setCode('');
+      setShowEditView(false);
+    }
+  }
+
   async function writeCode() {
     try {
       const response = await fetch('/api/custom-code', {
@@ -67,7 +93,7 @@ export default function CustomCode({ siteId, savedCode }) {
         const res = await response.json();
         setLastUpdated(res.data.lastUpdated);
         setCode(res.data.code);
-        savedCode.code = res.data.code;
+        savedCode = res.data;
       } else {
         throw new Error('Custom code write failed');
       }
@@ -129,15 +155,15 @@ export default function CustomCode({ siteId, savedCode }) {
             <button
               type="submit"
               className="inline-flex mr-1 items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
-              onClick={() => { setShowEditView(false) }}
+              onClick={deleteCode}
             >
               delete
             </button>
             <button
               type="submit"
-              disabled={code.length > 2000 || code.length === 0 || code === savedCode.code}
+              disabled={code.length > 2000 || code.length === 0 || code === savedCode?.code}
               className={
-                classNames(code.length > 2000 || code.length === 0 || code === savedCode.code ? "bg-gray-400" : "bg-green-600 hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+                classNames(code.length > 2000 || code.length === 0 || code === savedCode?.code ? "bg-gray-400" : "bg-green-600 hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
                 "inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm"
                 )
               }

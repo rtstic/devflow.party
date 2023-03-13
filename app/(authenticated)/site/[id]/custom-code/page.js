@@ -9,9 +9,7 @@ export default async function CustomCodeTab({ params: { id: siteId } }) {
   let savedCode = null;
   try {
     savedCode = await webflowAPI.getCustomCode({siteId});
-  } catch(e) {
-    console.error(e);
-  }
+  } catch(e) {}
   
   return <CustomCode savedCode={savedCode} siteId={siteId} />;
 }
