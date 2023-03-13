@@ -2,29 +2,42 @@
 
 import React, { useState } from 'react';
 import { ChevronRightIcon, InformationCircleIcon } from '@heroicons/react/24/solid'
-import { CalendarIcon, CommandLineIcon, MegaphoneIcon } from '@heroicons/react/24/outline'
+import { CalendarIcon, CommandLineIcon, MegaphoneIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
 
 import { classNames, timeAgo, getTitleTimestamp } from '@/utils'
 
 const items = [
   {
-    name: 'Marketing Campaign',
-    description: 'I think the kids call these memes these days.',
-    href: '#',
+    name: 'Flying text',
+    description: 'This code displays flying text across the top of your site.',
+    code: [
+      '<script>',
+      '  const text = document.createElement(\'div\');',
+      '  text.innerText = "Flying Text";',
+      '  text.style.position = "absolute";',
+      '  document.body.appendChild(text);',
+      '',
+      '  let x = 0;',
+      '  setInterval(() => {',
+      '    x = (x + 1) % window.innerWidth;',
+      '    text.style.left = x + "px";',
+      '  }, 10);',
+      '<script>',
+    ].join('\n'),
     iconColor: 'bg-pink-500',
-    icon: MegaphoneIcon,
+    icon: PaperAirplaneIcon,
   },
   {
     name: 'Engineering Project',
     description: 'Something really expensive that will ultimately get cancelled.',
-    href: '#',
+    code: '#',
     iconColor: 'bg-purple-500',
     icon: CommandLineIcon,
   },
   {
     name: 'Event',
     description: 'Like a conference all about you that no one will care about.',
-    href: '#',
+    code: '#',
     iconColor: 'bg-yellow-500',
     icon: CalendarIcon,
   },
@@ -69,6 +82,7 @@ export default function CustomCode({ siteId, savedCode }) {
           setCode('');
           setLastUpdated(null);
           setShowEditView(false);
+          setLineCount(1);
         }
       } catch (error) {
         console.error('Error deleting code on server:', error);
@@ -77,6 +91,7 @@ export default function CustomCode({ siteId, savedCode }) {
     if (!savedCode?.code){
       setCode('');
       setShowEditView(false);
+      setLineCount(1);
     }
   }
 
@@ -101,6 +116,12 @@ export default function CustomCode({ siteId, savedCode }) {
       console.error('Error writing code on server:', error);
     }
   }
+
+  const selectTemplate = (item) => {
+    setShowEditView(true);
+    setCode(item.code);
+    setLineCount(item.code.split('\n').length);
+  };
 
   const getLabel = () => (
     <div className="rounded-t-md bg-blue-50 p-4">
@@ -194,10 +215,10 @@ export default function CustomCode({ siteId, savedCode }) {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium text-gray-900">
-                  <a href={item.href}>
-                    <span className="absolute inset-0" aria-hidden="true" />
+                  <div onClick={() => selectTemplate(item) }>
+                    <span className="absolute cursor-pointer inset-0" aria-hidden="true" />
                     {item.name}
-                  </a>
+                  </div>
                 </div>
                 <p className="text-sm text-gray-500">{item.description}</p>
               </div>
@@ -209,7 +230,7 @@ export default function CustomCode({ siteId, savedCode }) {
         ))}
       </ul>
       <div className="mt-6 flex">
-        <div onClick={()=> setShowEditView(true)} className="cursor-pointer text-sm font-medium text-indigo-600 hover:text-indigo-500">
+        <div onClick={()=> setShowEditView(true)} className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-500">
           Start from scratch
           <span aria-hidden="true"> &rarr;</span>
         </div>
