@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { getAPIClient } from '@/utils/webflow_helper'
 import Image from 'next/image';
 import { Tab } from '@/components';
-
+import { timeAgo, getTitleTimestamp } from '@/utils';
 
 export default async function SiteLayout({ params: { id: siteId }, children }) {
   // TODO: Stop duplicating this code
@@ -46,12 +46,12 @@ export default async function SiteLayout({ params: { id: siteId }, children }) {
                   <dd className="mt-1 text-lg text-gray-900">{site.shortName}</dd>
                   <dt className="text-lg font-medium text-gray-500">Time Zone</dt>
                   <dd className="mt-1 text-lg text-gray-900">{site.timeZone}</dd>
-                  <dt className="text-lg font-medium text-gray-500">Created On</dt>
-                  <dd className="mt-1 text-lg text-gray-900">{site.createdOn}</dd>
+                  <dt className="text-lg font-medium text-gray-500">Created</dt>
+                  <dd className="mt-1 text-lg text-gray-900" title={getTitleTimestamp(site.createdOn)}>{timeAgo(site.createdOn)}</dd>
                   <dt className="text-lg font-medium text-gray-500">Last Updated</dt>
-                  <dd className="mt-1 text-lg text-gray-900">{site.lastUpdated}</dd>
+                  <dd className="mt-1 text-lg text-gray-900" title={getTitleTimestamp(site.lastUpdated)}>{timeAgo(site.lastUpdated)}</dd>
                   <dt className="text-lg font-medium text-gray-500">Last Published</dt>
-                  <dd className="mt-1 text-lg text-gray-900">{site.lastPublished}</dd>
+                  <dd className="mt-1 text-lg text-gray-900" title={getTitleTimestamp(site.lastPublished)}>{timeAgo(site.lastPublished)}</dd>
                 </div>
               </dl>
             </div>

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { ChevronRightIcon, InformationCircleIcon } from '@heroicons/react/24/solid'
 import { CalendarIcon, CommandLineIcon, MegaphoneIcon } from '@heroicons/react/24/outline'
 
-import { classNames } from '@/utils'
+import { classNames, timeAgo, getTitleTimestamp } from '@/utils'
 
 const items = [
   {
@@ -105,23 +105,25 @@ export default function CustomCode({ savedCode }) {
             value={code}
           />
         </div>
-        <div className="inset-x-0 bottom-0 flex justify-between py-2">
-          <div className="flex items-center space-x-5">
-            Last updated 2 days ago
-          </div>
+        <div className="inset-x-0 bottom-0 flex justify-end py-2">
+          {savedCode &&
+            <div className="flex grow items-center space-x-5" title={getTitleTimestamp(savedCode.updatedAt || savedCode.createdAt)}>
+              Last updated {timeAgo(savedCode.updatedAt || savedCode.createdAt)}
+            </div>
+          }
           <div className="flex-shrink-0">
             <button
               type="submit"
-              className="inline-flex mr-1 items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="inline-flex mr-1 items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
               onClick={() => { setShowEditView(false) }}
             >
               delete
             </button>
             <button
               type="submit"
-              disabled={code.length > 2000}
+              disabled={code.length > 2000 || code.length === 0}
               className={
-                classNames(code.length > 2000 ? "bg-gray-500" : "bg-green-600 hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+                classNames(code.length > 2000 || code.length === 0 ? "bg-gray-400" : "bg-green-600 hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
                 "inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm"
                 )
               }

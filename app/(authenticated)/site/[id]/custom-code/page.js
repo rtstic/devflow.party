@@ -6,7 +6,7 @@ export default async function CustomCodeTab({ params: { id: siteId } }) {
   const cookieStore = cookies();
   const webflowAuth = cookieStore.get('webflow_auth').value;
   const webflowAPI = getAPIClient(webflowAuth, false);
-  let savedCode = '';
+  let savedCode = null;
   try {
     savedCode = await webflowAPI.getCustomCode({siteId});
   } catch(e){}
