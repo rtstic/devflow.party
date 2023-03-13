@@ -5,11 +5,13 @@ import CustomCode from '@/components/custom-code';
 export default async function CustomCodeTab({ params: { id: siteId } }) {
   const cookieStore = cookies();
   const webflowAuth = cookieStore.get('webflow_auth').value;
-  const webflowAPI = getAPIClient(webflowAuth, false);
+  const webflowAPI = getAPIClient(webflowAuth);
   let savedCode = null;
   try {
     savedCode = await webflowAPI.getCustomCode({siteId});
-  } catch(e){}
+  } catch(e) {
+    console.error(e);
+  }
   
-  return <CustomCode savedCode={savedCode} />;
+  return <CustomCode savedCode={savedCode} siteId={siteId} />;
 }

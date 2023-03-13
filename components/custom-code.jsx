@@ -30,17 +30,9 @@ const items = [
   },
 ]
 
-export default function CustomCode({ savedCode }) {
-  const JSCode = `const App = props => {
-    return (
-      <div>
-        <h1> Prism JS </h1>
-        <div>Awesome Syntax Highlighter</div>
-      </div>
-    );
-  };
-  `;
-  const [code, setCode] = useState(JSCode);
+export default function CustomCode({ siteId, savedCode }) {
+  const [lastUpdated, setLastUpdated] = useState(savedCode ? savedCode.lastUpdated : null);
+  const [code, setCode] = useState(savedCode.code || '');
   const [lineCount, setLineCount] = useState(code.split('\n').length);
   const [showEditView, setShowEditView] = useState(savedCode ? true : false);
 
@@ -53,13 +45,34 @@ export default function CustomCode({ savedCode }) {
 
   const onKeyDownTabOver = (event) => {
     if (event.key === 'Tab') {
+      event.preventDefault()
       const textarea = document.querySelector('textarea')
       const start = textarea.selectionStart
       const end = textarea.selectionEnd
 
       textarea.value = textarea.value.substring(0, start) + '\t' + textarea.value.substring(end)
+    }
+  }
 
-      event.preventDefault()
+  async function writeCode() {
+    try {
+      const response = await fetch('/api/custom-code', {
+        method: 'PUT',
+        body: JSON.stringify({ code, siteId }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const res = await response.json();
+        setLastUpdated(res.data.lastUpdated);
+        setCode(res.data.code);
+        savedCode.code = res.data.code;
+      } else {
+        throw new Error('Custom code write failed');
+      }
+    } catch (error) {
+      console.error('Error writing code on server:', error);
     }
   }
 
@@ -73,11 +86,11 @@ export default function CustomCode({ savedCode }) {
           <label htmlFor="editor" className="block text-sm font-medium leading-6 text-blue-700">
             Any custom code saved here will be added to the &lt;head&gt; tag of this site.
           </label>
-          <p className="mt-3 text-sm md:mt-0 md:ml-6">
+          <div className="mt-3 text-sm md:mt-0 md:ml-6">
             <p className="whitespace-nowrap font-medium text-blue-700 hover:text-blue-600">
               Characters left: {2000 - code.length}
             </p>
-          </p>
+          </div>
         </div>
       </div>
     </div>
@@ -95,7 +108,7 @@ export default function CustomCode({ savedCode }) {
             {spanList}
           </div>
           <textarea
-            className="block w-full flex-1 resize-none overflow-y-hidden leading-5 h-full p-0 border-0 bg-gray-900 text-white min-w-500px outline-none"
+            className="block placeholder:text-gray-300 w-full flex-1 resize-none overflow-y-hidden leading-5 h-full p-0 border-0 bg-gray-900 text-white min-w-500px outline-none"
             id="editor"
             name="editor"
             onKeyDown={onKeyDownTabOver}
@@ -103,12 +116,13 @@ export default function CustomCode({ savedCode }) {
             onInput={onInputSetCode}
             onPaste={onInputSetCode}
             value={code}
+            placeholder='Add code here. e.g. &lt;script&gt;alert("Hello, world!");&lt;/script&gt;'
           />
         </div>
         <div className="inset-x-0 bottom-0 flex justify-end py-2">
-          {savedCode &&
-            <div className="flex grow items-center space-x-5" title={getTitleTimestamp(savedCode.updatedAt || savedCode.createdAt)}>
-              Last updated {timeAgo(savedCode.updatedAt || savedCode.createdAt)}
+          {lastUpdated &&
+            <div className="flex grow items-center space-x-5" title={getTitleTimestamp(lastUpdated)}>
+              Last updated {timeAgo(lastUpdated)}
             </div>
           }
           <div className="flex-shrink-0">
@@ -121,12 +135,13 @@ export default function CustomCode({ savedCode }) {
             </button>
             <button
               type="submit"
-              disabled={code.length > 2000 || code.length === 0}
+              disabled={code.length > 2000 || code.length === 0 || code === savedCode.code}
               className={
-                classNames(code.length > 2000 || code.length === 0 ? "bg-gray-400" : "bg-green-600 hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+                classNames(code.length > 2000 || code.length === 0 || code === savedCode.code ? "bg-gray-400" : "bg-green-600 hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
                 "inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm"
                 )
               }
+              onClick={writeCode}
             >
               Save
             </button>
