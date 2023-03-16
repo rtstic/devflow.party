@@ -32,7 +32,7 @@ export function timeAgo(timestamp) {
   const then = new Date(timestamp);
   
   // Calculate the time difference in milliseconds
-  const diff = now.getTime() - then.getTime();
+  const diff = Math.max(now.getTime() - then.getTime(), 0);
   
   // Calculate the time difference in seconds, minutes, hours, days, weeks,
   // months, and years, and return a string that says how long ago the
@@ -99,3 +99,71 @@ export function getTitleTimestamp(timestamp) {
     timeStyle: 'short'
   });
 }
+
+/**
+ * The dedent function removes extra indentation from multiline strings.
+ * It takes a tagged template literal as its argument, which consists of
+ * an array of strings and an array of values (from expressions embedded
+ * within the template literal).
+ *
+ * @param {TemplateStringsArray} strings - An array of strings from the template literal.
+ * @param {...any} values - The values of expressions embedded within the template literal.
+ * @returns {string} - A dedented string with the extra indentation removed.
+ *
+ * @example
+ * const exampleString = dedent`
+ *   This is an example string.
+ *     This line has extra indentation.
+ * `;
+ * console.log(exampleString);
+ * // Output:
+ * // This is an example string.
+ * //   This line has extra indentation.
+ */
+export function dedent(strings, ...values) {
+  // Concatenate the strings and values arrays into a single string (fullString)
+  let fullString = strings.reduce((result, string, i) => {
+    return result + (values[i - 1] || '') + string;
+  }, '');
+
+  // Split the fullString into an array of lines
+  let lines = fullString.split('\n');
+
+  // Determine the minimum indentation level (minIndent) by filtering out empty lines
+  // and finding the position of the first non-space character for each line
+  let minIndent = Math.min(
+    ...lines
+      .filter(line => line.trim().length > 0)
+      .map(line => line.search(/\S/))
+  );
+
+  // Remove the extra indentation from each line by slicing off the minIndent amount
+  // of characters and join the lines back into a single string
+  let dedentedString = lines
+    .map(line => line.slice(minIndent))
+    .join('\n')
+    .trim();
+
+  return dedentedString;
+}
+
+/**
+ * A base64-encoded SVG placeholder image.
+ * This image is a 200x200 light gray (#EEEEEE) rectangle that serves as
+ * a simple and lightweight placeholder for the Next.js Image component.
+ * It will be displayed with a blur effect while the main image is being
+ * downloaded.
+ *
+ * @type {string}
+ * @example
+ * <Image
+ *   src={mainImageUrl}
+ *   alt=""
+ *   width={400}
+ *   height={300}
+ *   placeholder="blur"
+ *   blurDataURL={placeholderImage}
+ * />
+ */
+export const placeholderImage =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI0VFRUVFRSIvPjwvc3ZnPg==";

@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { getAPIClient } from '@/utils/webflow_helper'
 import Image from 'next/image';
 import { Tab } from '@/components';
-import { timeAgo, getTitleTimestamp } from '@/utils';
+import { timeAgo, getTitleTimestamp, placeholderImage } from '@/utils';
 
 export default async function SiteLayout({ params: { id: siteId }, children }) {
   // TODO: Stop duplicating this code
@@ -28,30 +28,33 @@ export default async function SiteLayout({ params: { id: siteId }, children }) {
         </div>
         <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
           <div className="flex">
-            <div className="mr-8">
+            <div className="mr-8 overflow-hidden">
               <Image
-              className="aspect-[3/2] w-full rounded-2xl object-cover border border-black"
-              src={site.previewUrl}
-              alt=""
-              width={400}
-              height={300}
+                className="top-0 left-0 object-contain rounded-2xl border border-black"
+                src={site.previewUrl}
+                alt=""
+                width={540}
+                height={360}
+                loading="lazy"
+                placeholder='blur'
+                blurDataURL={placeholderImage}
               />
             </div>
-            <div className="grow flex flex-col-reverse space-y-4">
+            <div className="flex-grow flex flex-col-reverse space-y-4">
               <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                 <div className="sm:col-span-1">
                   <dt className="text-lg font-medium text-gray-500">Name</dt>
-                  <dd className="mt-1 text-lg text-gray-900">{site.displayName}</dd>
+                  <dd className="text-lg text-gray-900">{site.displayName}</dd>
                   <dt className="text-lg font-medium text-gray-500">Short Name</dt>
-                  <dd className="mt-1 text-lg text-gray-900">{site.shortName}</dd>
+                  <dd className="text-lg text-gray-900">{site.shortName}</dd>
                   <dt className="text-lg font-medium text-gray-500">Time Zone</dt>
-                  <dd className="mt-1 text-lg text-gray-900">{site.timeZone}</dd>
+                  <dd className="text-lg text-gray-900">{site.timeZone}</dd>
                   <dt className="text-lg font-medium text-gray-500">Created</dt>
-                  <dd className="mt-1 text-lg text-gray-900" title={getTitleTimestamp(site.createdOn)}>{timeAgo(site.createdOn)}</dd>
+                  <dd className="text-lg text-gray-900" title={getTitleTimestamp(site.createdOn)}>{timeAgo(site.createdOn)}</dd>
                   <dt className="text-lg font-medium text-gray-500">Last Updated</dt>
-                  <dd className="mt-1 text-lg text-gray-900" title={getTitleTimestamp(site.lastUpdated)}>{timeAgo(site.lastUpdated)}</dd>
+                  <dd className="text-lg text-gray-900" title={getTitleTimestamp(site.lastUpdated)}>{timeAgo(site.lastUpdated)}</dd>
                   <dt className="text-lg font-medium text-gray-500">Last Published</dt>
-                  <dd className="mt-1 text-lg text-gray-900" title={getTitleTimestamp(site.lastPublished)}>{timeAgo(site.lastPublished)}</dd>
+                  <dd className="text-lg text-gray-900" title={site.lastPublished ? getTitleTimestamp(site.lastPublished) : "Never published!"}>{site.lastPublished ? timeAgo(site.lastPublished) : "Never published!"}</dd>
                 </div>
               </dl>
             </div>
