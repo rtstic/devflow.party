@@ -1,113 +1,40 @@
 'use client';
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { CloudIcon, InformationCircleIcon, CommandLineIcon, DocumentCheckIcon, PaperAirplaneIcon, TrashIcon, XCircleIcon } from '@heroicons/react/24/outline'
+import { CloudIcon, InformationCircleIcon, CommandLineIcon, DocumentCheckIcon, PaperAirplaneIcon, TrashIcon, XCircleIcon, PlusCircleIcon, CircleStackIcon, ViewfinderCircleIcon, CloudArrowDownIcon, SwatchIcon } from '@heroicons/react/24/outline'
 
 import { Banner } from '@/components';
-import { classNames, timeAgo, getTitleTimestamp, dedent } from '@/utils'
+import { classNames, timeAgo, getTitleTimestamp } from '@/utils'
+import { getTemplateCustomCode } from '@/utils/custom_code_helper';
 
 const templates = [
   {
-    name: 'Flying text',
-    description: 'This code displays flying text across the top of your site.',
-    code: dedent`
-      <script>
-        document.addEventListener('DOMContentLoaded', () => {
-          const text = document.createElement('div');
-          text.textContent = 'Flying Text';
-          text.style.position = 'absolute';
-          text.style.zIndex = '9999';
-          text.style.fontSize = '24px';
-          text.style.fontWeight = 'bold';
-          text.style.color = 'red';
-          document.body.insertBefore(text, document.body.firstChild);
-      
-          let x = 0;
-          setInterval(() => {
-            x = (x + 1) % window.innerWidth;
-            text.style.left = x + 'px';
-          }, 10);
-        });
-      </script>
-    `,
-    iconColor: 'bg-pink-500',
+    name: 'Flying Text',
+    description: 'Add this script to your site to display a "Flying Text" that smoothly moves horizontally across the top of the page in a continuous loop, creating an eye-catching and engaging effect for your visitors.',
+    code: getTemplateCustomCode('flying-text'),
+    iconColor: 'bg-green-500',
     icon: PaperAirplaneIcon,
   },
   {
-    name: 'Glitch',
-    description: 'This code will add a glitch effect to the page by randomly altering the positions of all elements',
-    code: '#',
-    iconColor: 'bg-purple-500',
-    icon: CommandLineIcon,
+    name: 'Rainbow',
+    description: 'Add this script to your site to apply a colorful rainbow gradient to all text, creating a visually appealing and vibrant effect.',
+    code: getTemplateCustomCode('rainbow'),
+    iconColor: 'bg-red-500',
+    icon: SwatchIcon,
   },
   {
     name: 'Snowfall',
-    description: 'This effect creates a trail of colorful particles that follow your mouse as you move it around the page.',
-    code: dedent`
-      <script>
-        document.addEventListener('DOMContentLoaded', () => {
-          const flakes = [];
-          const numFlakes = 150;
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          let w = canvas.width = window.innerWidth;
-          let h = canvas.height = window.innerHeight;
-          canvas.style.position = 'fixed';
-          canvas.style.zIndex = '9999';
-          canvas.style.pointerEvents = 'none';
-          document.body.insertBefore(canvas, document.body.firstChild);
-      
-          window.addEventListener('resize', () => {
-            w = canvas.width = window.innerWidth;
-            h = canvas.height = window.innerHeight;
-          });
-      
-          function createSnowFlake() {
-            const x = Math.random() * w;
-            const y = Math.random() * h;
-            const speed = Math.random() * 5 + 1;
-            const radius = Math.random() * 4 + 1;
-            return {x, y, speed, radius};
-          }
-      
-          function initSnowFlakes() {
-            for (let i = 0; i < numFlakes; i++) {
-              flakes.push(createSnowFlake());
-            }
-          }
-      
-          function drawSnowFlakes() {
-            context.clearRect(0, 0, w, h);
-            context.fillStyle = 'white';
-            context.beginPath();
-            for (let i = 0; i < flakes.length; i++) {
-              const flake = flakes[i];
-              context.moveTo(flake.x, flake.y);
-              context.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2, true);
-            }
-            context.fill();
-            moveSnowFlakes();
-          }
-      
-          function moveSnowFlakes() {
-            for (let i = 0; i < flakes.length; i++) {
-              const flake = flakes[i];
-              flake.y += flake.speed;
-              if (flake.y > h) {
-                flake.y = Math.random() * -h;
-                flake.x = Math.random() * w;
-              }
-            }
-            requestAnimationFrame(drawSnowFlakes);
-          }
-      
-          initSnowFlakes();
-          moveSnowFlakes();
-        });
-      </script>
-    `,
+    description: 'Add this script to your site to create a gentle snowfall effect with snowflakes drifting down the screen, adding a serene and wintry atmosphere to your webpage.',
+    code: getTemplateCustomCode('snowfall'),
     iconColor: 'bg-yellow-500',
-    icon: CloudIcon,
+    icon: CloudArrowDownIcon,
+  },
+  {
+    name: 'Ball Game',
+    description: 'Add this script to your site to create an interactive game where blue balls bounce around the screen and repel away from your cursor; click anywhere to add more balls, providing a fun and dynamic user experience.',
+    code: getTemplateCustomCode('ball-game'),
+    iconColor: 'bg-blue-500',
+    icon: ViewfinderCircleIcon,
   },
 ]
 
