@@ -1,28 +1,33 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { InformationCircleIcon } from '@heroicons/react/24/solid'
-import { CloudIcon, CommandLineIcon, DocumentCheckIcon, PaperAirplaneIcon, TrashIcon, XCircleIcon } from '@heroicons/react/24/outline'
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { CloudIcon, InformationCircleIcon, CommandLineIcon, DocumentCheckIcon, PaperAirplaneIcon, TrashIcon, XCircleIcon } from '@heroicons/react/24/outline'
 
-import { Banner } from '.';
+import { Banner } from '@/components';
 import { classNames, timeAgo, getTitleTimestamp, dedent } from '@/utils'
 
-const items = [
+const templates = [
   {
     name: 'Flying text',
     description: 'This code displays flying text across the top of your site.',
     code: dedent`
       <script>
-        const text = document.createElement('div');
-        text.innerText = "Flying Text";
-        text.style.position = "absolute";
-        document.body.appendChild(text);
-
-        let x = 0;
-        setInterval(() => {
-          x = (x + 1) % window.innerWidth;
-          text.style.left = x + "px";
-        }, 10);
+        document.addEventListener('DOMContentLoaded', () => {
+          const text = document.createElement('div');
+          text.textContent = 'Flying Text';
+          text.style.position = 'absolute';
+          text.style.zIndex = '9999';
+          text.style.fontSize = '24px';
+          text.style.fontWeight = 'bold';
+          text.style.color = 'red';
+          document.body.insertBefore(text, document.body.firstChild);
+      
+          let x = 0;
+          setInterval(() => {
+            x = (x + 1) % window.innerWidth;
+            text.style.left = x + 'px';
+          }, 10);
+        });
       </script>
     `,
     iconColor: 'bg-pink-500',
@@ -38,7 +43,69 @@ const items = [
   {
     name: 'Snowfall',
     description: 'This effect creates a trail of colorful particles that follow your mouse as you move it around the page.',
-    code: '#',
+    code: dedent`
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const flakes = [];
+          const numFlakes = 150;
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          let w = canvas.width = window.innerWidth;
+          let h = canvas.height = window.innerHeight;
+          canvas.style.position = 'fixed';
+          canvas.style.zIndex = '9999';
+          canvas.style.pointerEvents = 'none';
+          document.body.insertBefore(canvas, document.body.firstChild);
+      
+          window.addEventListener('resize', () => {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+          });
+      
+          function createSnowFlake() {
+            const x = Math.random() * w;
+            const y = Math.random() * h;
+            const speed = Math.random() * 5 + 1;
+            const radius = Math.random() * 4 + 1;
+            return {x, y, speed, radius};
+          }
+      
+          function initSnowFlakes() {
+            for (let i = 0; i < numFlakes; i++) {
+              flakes.push(createSnowFlake());
+            }
+          }
+      
+          function drawSnowFlakes() {
+            context.clearRect(0, 0, w, h);
+            context.fillStyle = 'white';
+            context.beginPath();
+            for (let i = 0; i < flakes.length; i++) {
+              const flake = flakes[i];
+              context.moveTo(flake.x, flake.y);
+              context.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2, true);
+            }
+            context.fill();
+            moveSnowFlakes();
+          }
+      
+          function moveSnowFlakes() {
+            for (let i = 0; i < flakes.length; i++) {
+              const flake = flakes[i];
+              flake.y += flake.speed;
+              if (flake.y > h) {
+                flake.y = Math.random() * -h;
+                flake.x = Math.random() * w;
+              }
+            }
+            requestAnimationFrame(drawSnowFlakes);
+          }
+      
+          initSnowFlakes();
+          moveSnowFlakes();
+        });
+      </script>
+    `,
     iconColor: 'bg-yellow-500',
     icon: CloudIcon,
   },
@@ -49,45 +116,66 @@ export default function CustomCode({ siteId, savedCode }) {
   const [code, setCode] = useState(savedCode?.code || '');
   const [lineCount, setLineCount] = useState(code.split('\n').length);
   const [showEditView, setShowEditView] = useState(savedCode ? true : false);
-  const [showBanner, setShowBanner] = useState("");
+  const [savedCodeState, setSavedCodeState] = useState(savedCode);
+  const [whichBannerToShow, setWhichBannerToShow] = useState(null);
+  const [bannerVisible, setBannerVisible] = useState(false);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
     let timeout;
-    if (showBanner) {
+    if (bannerVisible) {
       timeout = setTimeout(() => {
-        setShowBanner("");
+        setBannerVisible(false);
+        setWhichBannerToShow(null);
       }, 3000);
     }
 
     return () => {
       clearTimeout(timeout);
     };
-  }, [showBanner]);
+  }, [setBannerVisible, setWhichBannerToShow, bannerVisible]);
 
-  const onInputSetCode = (event) => {
+  const onInputSetCode = useCallback((event) => {
     const c = event.target.value;
     const numberOfLines = c.split('\n').length
     setCode(c);
     setLineCount(numberOfLines);
-  }
+  }, []);
 
-  const onKeyDownTabOver = (event) => {
+  const onKeyDownTabOver = useCallback((event) => {
     if (event.key === 'Tab') {
-      event.preventDefault()
-      const textarea = document.querySelector('textarea')
-      const start = textarea.selectionStart
-      const end = textarea.selectionEnd
-
-      textarea.value = textarea.value.substring(0, start) + '\t' + textarea.value.substring(end)
+      event.preventDefault();
+      const textarea = textareaRef.current;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const currentLineStart = textarea.value.lastIndexOf('\n', start) + 1;
+      const currentLineEnd = textarea.value.indexOf('\n', start);
+      const currentLine = textarea.value.substring(currentLineStart, currentLineEnd === -1 ? undefined : currentLineEnd);
+  
+      if (event.shiftKey) {
+        // Un-indent with Shift+Tab
+        if (currentLine.startsWith('\t')) {
+          const newLine = currentLine.substring(1);
+          textarea.value = textarea.value.substring(0, currentLineStart) + newLine + textarea.value.substring(currentLineEnd === -1 ? undefined : currentLineEnd);
+          textarea.selectionStart = start - 1;
+          textarea.selectionEnd = end - 1;
+        }
+      } else {
+        // Indent with Tab
+        textarea.value = textarea.value.substring(0, start) + '\t' + textarea.value.substring(end);
+        textarea.selectionStart = start + 1;
+        textarea.selectionEnd = end + 1;
+      }
     }
-  }
+  }, []);
 
-  const clearCode = () => {
+  const clearCode = useCallback(() => {
     setCode('');
     setLineCount(1);
-  }
+  }, []);
 
-  const deleteCode = async () => {
+  const deleteCode = useCallback(async () => {
+    let codeWasDeleted = false;
     if (lastUpdated) {
       try {
         const response = await fetch('/api/custom-code', {
@@ -103,21 +191,26 @@ export default function CustomCode({ siteId, savedCode }) {
           setLastUpdated(null);
           setShowEditView(false);
           setLineCount(1);
+          codeWasDeleted = true;
         }
       } catch (error) {
         console.error('Error deleting code on server:', error);
       }
     }
-    if (!savedCode?.code){
+    if (!savedCodeState?.code){
       setCode('');
       setShowEditView(false);
       setLineCount(1);
-      savedCode = null;
+      setSavedCodeState(null);
+      codeWasDeleted = true;
     }
-    setShowBanner("deleted");
-  }
+    if (codeWasDeleted){
+      setWhichBannerToShow("deleted");
+      setBannerVisible(true);
+    }
+  }, [lastUpdated, savedCodeState, siteId]);
 
-  async function writeCode() {
+  const writeCode = useCallback(async () => {
     try {
       const response = await fetch('/api/custom-code', {
         method: 'PUT',
@@ -130,21 +223,22 @@ export default function CustomCode({ siteId, savedCode }) {
         const res = await response.json();
         setLastUpdated(res.data.lastUpdated);
         setCode(res.data.code);
-        savedCode = res.data;
-        setShowBanner("success");
+        setSavedCodeState(res.data);
+        setWhichBannerToShow("success");
+        setBannerVisible(true);
       } else {
         throw new Error('Custom code write failed');
       }
     } catch (error) {
       console.error('Error writing code on server:', error);
     }
-  }
+  }, [code, siteId]);
   
-  const selectTemplate = (item) => {
+  const selectTemplate = useCallback((t) => {
     setShowEditView(true);
-    setCode(item.code);
-    setLineCount(item.code.split('\n').length);
-  };
+    setCode(t.code);
+    setLineCount(t.code.split('\n').length);
+  }, []);
 
   const getLabel = () => (
     <div className="rounded-t-md bg-blue-50 p-4">
@@ -179,10 +273,12 @@ export default function CustomCode({ siteId, savedCode }) {
           </div>
           <textarea
             className="block placeholder:text-gray-300 w-full flex-1 resize-none overflow-y-hidden leading-5 h-full p-0 border-0 bg-gray-900 text-white min-w-500px outline-none"
-            id="editor"
+            id="customCodeEditor"
             name="editor"
+            ref={textareaRef}
             onKeyDown={onKeyDownTabOver}
             rows={lineCount}
+            maxLength={2000}
             onInput={onInputSetCode}
             onPaste={onInputSetCode}
             value={code}
@@ -227,7 +323,7 @@ export default function CustomCode({ siteId, savedCode }) {
             </button>
           </div>
         </div>
-        {showBanner === "success" && <Banner Icon={DocumentCheckIcon} content="Custom code saved" color="green" handleClose={() => setBannerVisible(false)} />}
+        {whichBannerToShow === "success" && bannerVisible && <Banner Icon={DocumentCheckIcon} content="Custom code saved" color="green" handleClose={() => setBannerVisible(false)} />}
       </div>
     )
   }
@@ -237,26 +333,26 @@ export default function CustomCode({ siteId, savedCode }) {
       <h2 className="text-base font-semibold leading-6 text-gray-900">Add custom code to your site</h2>
       <p className="mt-1 text-sm text-gray-500">Get started by selecting a template or start from scratch.</p>
       <ul role="list" className="mt-6 grid grid-cols-1 gap-6 border-t border-b border-gray-200 py-6 sm:grid-cols-2">
-        {items.map((item, itemIdx) => (
-          <li key={itemIdx} className="flow-root">
-            <div className="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-indigo-500 hover:bg-gray-50">
+        {templates.map((t, tId) => (
+          <li key={tId} className="flow-root">
+            <div className="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-blue-500 hover:bg-gray-50">
               <div
                   className={classNames(
-                    item.iconColor,
+                    t.iconColor,
                     'flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg'
                   )}
                 >
-                  <item.icon className="h-6 w-6 text-white" aria-hidden="true" />
+                  <t.icon className="h-6 w-6 text-white" aria-hidden="true" />
                 </div>
                 <div>
                 <h3 className="text-sm font-medium text-gray-900">
-                  <div onClick={() => selectTemplate(item)} className="focus:outline-none">
+                  <div onClick={() => selectTemplate(t)} className="focus:outline-none">
                     <span className="absolute cursor-pointer inset-0" aria-hidden="true" />
-                    <span>{item.name}</span>
+                    <span>{t.name}</span>
                     <span aria-hidden="true"> &rarr;</span>
                   </div>
                 </h3>
-                <p className="mt-1 text-sm text-gray-500">{item.description}</p>
+                <p className="mt-1 text-sm text-gray-500">{t.description}</p>
               </div>
             </div>
           </li>
@@ -268,7 +364,7 @@ export default function CustomCode({ siteId, savedCode }) {
           <span aria-hidden="true"> &rarr;</span>
         </div>
       </div>
-      {showBanner === "deleted" && <Banner Icon={TrashIcon} content="Custom code deleted" color="red" handleClose={() => setBannerVisible(false)} />}
+      {whichBannerToShow === "deleted" && bannerVisible && <Banner Icon={TrashIcon} content="Custom code deleted" color="red" handleClose={() => setBannerVisible(false)} />}
     </div>
   )
 }

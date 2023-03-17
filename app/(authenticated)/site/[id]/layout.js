@@ -1,16 +1,17 @@
 import { cookies } from 'next/headers';
 import { getAPIClient } from '@/utils/webflow_helper'
 import Image from 'next/image';
-import { Tab } from '@/components';
+import { PublishPopoverMenu, Tab } from '@/components';
 import { timeAgo, getTitleTimestamp, placeholderImage } from '@/utils';
 
 export default async function SiteLayout({ params: { id: siteId }, children }) {
   // TODO: Stop duplicating this code
   const cookieStore = cookies();
   const webflowAuth = cookieStore.get('webflow_auth').value;
-  const webflowAPI = getAPIClient(webflowAuth);
-  const site = await webflowAPI.site({siteId});
-
+  const webflowAPIv2 = getAPIClient(webflowAuth);
+  const webflowAPIv1 = getAPIClient(webflowAuth, false);
+  const [site, domains] = await Promise.all([webflowAPIv2.site({siteId}), webflowAPIv1.domains({siteId})]);
+  
   const tabs = [
     'pages',
     'custom-code',
@@ -24,7 +25,10 @@ export default async function SiteLayout({ params: { id: siteId }, children }) {
     return (
       <div className="overflow-hidden bg-white shadow sm:rounded-lg">
         <div className="px-4 py-5 sm:px-6">
-          <h3 className="text-lg font-medium leading-6 text-gray-900">Site Info</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium leading-6 text-gray-900">Site Info</h3>
+            <PublishPopoverMenu siteId={siteId} domains={domains.length > 0 ? domains : [`${site.shortName}.webflow.io`]} />
+          </div>
         </div>
         <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
           <div className="flex">

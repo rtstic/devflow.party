@@ -167,3 +167,38 @@ export function dedent(strings, ...values) {
  */
 export const placeholderImage =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI0VFRUVFRSIvPjwvc3ZnPg==";
+
+/**
+ * Truncates and formats a domain name to display it in a user-friendly/Webflow way.
+ *
+ * @param {string} domainName - The domain name to format, without the protocol (e.g., "example.com").
+ * @returns {string} - The formatted domain name.
+ * @example
+ * const domainName = "reallylongsubdomain.example.com";
+ * const formattedDomainName = formatDomainName(domainName);
+ * console.log(formattedDomainName); // Outputs "reallylongsu...example.com" 
+ */
+export function formatDomainName(domainName) {
+  // Split the domain name into parts by using the '.' delimiter.
+  const parts = domainName.split(".");
+
+  // Extract the first part (subdomain) and the remaining parts (domain and TLD).
+  const firstPart = parts[0];
+  const remainingParts = parts.slice(1).join(".");
+
+  // Define the maximum length allowed for the first part (subdomain).
+  const maxLength = 15;
+
+  // Initialize a variable to store the truncated first part.
+  let truncatedFirstPart = firstPart;
+
+  // If the first part is longer than the maximum allowed length,
+  // truncate it and add an ellipsis (...) at the end.
+  if (firstPart.length > maxLength) {
+    truncatedFirstPart = `${firstPart.slice(0, maxLength - 3)}...`;
+  }
+
+  // Return the formatted domain name by concatenating the truncated first part
+  // and the remaining parts.
+  return `${truncatedFirstPart}.${remainingParts}`;
+}

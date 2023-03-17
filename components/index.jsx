@@ -2,10 +2,11 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import {ChevronDownIcon, ChevronUpIcon, BellAlertIcon, XMarkIcon, BuildingStorefrontIcon, UserGroupIcon, CircleStackIcon, CodeBracketIcon, DocumentDuplicateIcon, CheckCircleIcon, TrashIcon, MegaphoneIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
+import { Fragment, useState, useEffect } from 'react';
+import { Popover, Transition } from '@headlessui/react';
 
-import { BellAlertIcon, XMarkIcon, BuildingStorefrontIcon, UserGroupIcon, CircleStackIcon, CodeBracketIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
-
-import { classNames } from '@/utils';
+import { classNames, formatDomainName } from '@/utils';
 
 export function Tab({type, siteId}) {
   const getTabData = () => {
@@ -95,4 +96,131 @@ export function Banner({Icon, content, handleClose, color}){
       </div>
     </div>
   )
+}
+
+
+export function PublishPopoverMenu({siteId, domains}) {
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [showBanner, setShowBanner] = useState(false);
+
+  const [selectedDomains, setSelectedDomains] = useState([]);
+
+  useEffect(() => {
+    let timeout;
+    if (showBanner) {
+      timeout = setTimeout(() => {
+        setShowBanner(false);
+      }, 3000);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [showBanner]);
+
+  const handleDomainToggle = (domain) => {
+    setSelectedDomains((prevState) => {
+      // Check if the domain is already in the selectedDomains array
+      const index = prevState.indexOf(domain);
+  
+      // If the domain is in the array, remove it
+      if (index !== -1) {
+        return prevState.filter((d) => d !== domain);
+      }
+  
+      // Otherwise, add the domain to the array
+      return [...prevState, domain];
+    });
+  };
+
+  const handlePopoverStateChange = () => {
+    setPopoverOpen(!popoverOpen);
+  };
+
+  const handlePublish = async () => {
+    if (selectedDomains.length > 0) {
+      try {
+        const response = await fetch('/api/publish-site', {
+          method: 'POST',
+          body: JSON.stringify({ siteId, domains: selectedDomains }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const res = await response.json();
+        if (res.queued) {
+          setShowBanner(true);
+          setPopoverOpen(false);
+        }
+      } catch (error) {
+        console.error('Error publishing site on server:', error);
+      }
+    }
+  };
+
+  return (
+    <>
+    <Popover className="relative">
+      <Popover.Button
+        onClick={handlePopoverStateChange}
+        className={`inline-flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900 ${
+          domains.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+        }`}
+        disabled={domains.length === 0}
+      >
+        <RocketLaunchIcon className="h-5 w-5" aria-hidden="true" />
+        <span>Publish</span>
+        {popoverOpen ? (
+          <ChevronUpIcon className="h-3 w-3" aria-hidden="true" />
+        ) : (
+          <ChevronDownIcon className="h-3 w-3" aria-hidden="true" />
+        )}
+      </Popover.Button>
+
+      <Transition
+        as={Fragment}
+        enter="transition ease-out duration-200"
+        enterFrom="opacity-0 translate-y-1"
+        enterTo="opacity-100 translate-y-0"
+        leave="transition ease-in duration-150"
+        leaveFrom="opacity-100 translate-y-0"
+        leaveTo="opacity-0 translate-y-1"
+      >
+        <Popover.Panel className="absolute right-0 z-10 mt-5 flex w-screen max-w-max px-4">
+          <div className="w-auto min-w-[200px] flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1 ring-gray-900/5">
+            <div className="p-4">
+              {domains.map((domainName) => (
+                <label key={domainName} className="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="form-checkbox text-blue-600"
+                    checked={selectedDomains.includes(domainName)}
+                    onChange={() => handleDomainToggle(domainName)}
+                  />
+                  <span title={`https://${domainName}`}>{formatDomainName(domainName)}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex justify-end p-2 bg-gray-50">
+              <button
+                onClick={() => handlePublish()}
+                className="px-4 py-2 mr-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-500"
+              >
+                Publish
+              </button>
+              <button
+                onClick={() => setSelectedDomains([])}
+                className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white rounded-md border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus
+                focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </Popover.Panel>
+      </Transition>
+    </Popover>
+    {showBanner && <Banner Icon={RocketLaunchIcon} content="Your site(s) has been published!" color="green" handleClose={() => setShowBanner(false)} />}
+    </>
+  );
 }
