@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import {ChevronDownIcon, ChevronUpIcon, BellAlertIcon, XMarkIcon, BuildingStorefrontIcon, UserGroupIcon, CircleStackIcon, CodeBracketIcon, DocumentDuplicateIcon, CheckCircleIcon, TrashIcon, MegaphoneIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
+import {ChevronDownIcon, ChevronUpIcon, ArrowTopRightOnSquareIcon, BellAlertIcon, XMarkIcon, BuildingStorefrontIcon, UserGroupIcon, CircleStackIcon, CodeBracketIcon, DocumentDuplicateIcon, CheckCircleIcon, TrashIcon, MegaphoneIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
 import { Fragment, useState, useEffect } from 'react';
 import { Popover, Transition } from '@headlessui/react';
 
@@ -281,6 +281,14 @@ export function PublishPopoverMenu({siteId, domains}) {
                     onChange={() => handleDomainToggle(domainName)}
                   />
                   <span title={`https://${domainName}`}>{formatDomainName(domainName)}</span>
+                  <a
+                    href={`https://${domainName}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-1 inline-flex items-center text-blue-600 hover:text-blue-800"
+                  >
+                    <ArrowTopRightOnSquareIcon className="h-4 w-4" aria-hidden="true" />
+                  </a>
                 </label>
               ))}
             </div>
