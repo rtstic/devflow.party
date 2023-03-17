@@ -102,8 +102,56 @@ export function Banner({Icon, content, handleClose, color}){
 export function PublishPopoverMenu({siteId, domains}) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
-
   const [selectedDomains, setSelectedDomains] = useState([]);
+
+  const isClientSide = () => typeof document !== 'undefined';
+
+  const getCookie = (name) => {
+    if (!isClientSide()) return null;
+
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+  };
+
+  const getLastPublished = () => {
+    const lastPublished = getCookie(`lastPublished-${siteId}`);
+    return lastPublished ? new Date(lastPublished) : null;
+  };
+
+  const calculateTimeLeft = () => {
+    const lastPublished = getLastPublished();
+    if (!lastPublished) return 0;
+  
+    const timeElapsed = (Date.now() - lastPublished) / 1000;
+    const remainingTime = 60 - timeElapsed;
+    return remainingTime > 0 ? remainingTime : 0;
+  };
+
+  const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft());
+
+  const setCookie = (name, value, minutes) => {
+    const expires = new Date(Date.now() + minutes * 60000).toUTCString();
+    document.cookie = `${name}=${value}; expires=${expires}; path=/`;
+  };
+
+  const canPublish = () => {
+    const lastPublished = getLastPublished();
+    if (!lastPublished) return true;
+
+    const timeElapsed = (Date.now() - lastPublished) / 1000;
+    return timeElapsed >= 60;
+  };
+
+  useEffect(() => {
+    if (timeLeft > 0) {
+      const timer = setTimeout(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [timeLeft]);
 
   useEffect(() => {
     let timeout;
@@ -140,23 +188,58 @@ export function PublishPopoverMenu({siteId, domains}) {
   const handlePublish = async () => {
     if (selectedDomains.length > 0) {
       try {
-        const response = await fetch('/api/publish-site', {
-          method: 'POST',
-          body: JSON.stringify({ siteId, domains: selectedDomains }),
-          headers: {
-            'Content-Type': 'application/json'
+        if (canPublish()) {
+          const response = await fetch('/api/publish-site', {
+            method: 'POST',
+            body: JSON.stringify({ siteId, domains: selectedDomains }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          const res = await response.json();
+          if (res.queued) {
+            setShowBanner(true);
+            setPopoverOpen(false);
+            setCookie(`lastPublished-${siteId}`, new Date().toISOString(), 60);
+            setTimeLeft(60);
           }
-        });
-        const res = await response.json();
-        if (res.queued) {
-          setShowBanner(true);
-          setPopoverOpen(false);
         }
       } catch (error) {
         console.error('Error publishing site on server:', error);
       }
     }
   };
+
+  const getPublishButton = () => {
+    if (!canPublish()) {
+      return (
+        <button
+          className="px-4 py-2 mr-2 bg-white text-gray-400 border-gray-300 border inline-flex items-center rounded-md text-sm font-semibold shadow-sm"
+          disabled
+        >
+          {Math.round(timeLeft)} seconds
+        </button>
+      );
+    }
+    if (selectedDomains.length === 0) {
+      return (
+        <button
+          className="px-4 py-2 mr-2 bg-white text-gray-400 border-gray-300 border inline-flex items-center rounded-md text-sm font-semibold shadow-sm"
+          disabled
+        >
+          Publish
+        </button>
+      );
+    }
+    return (
+      <button
+        onClick={() => handlePublish()}
+        className="px-4 py-2 mr-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-500"
+      >
+        Publish
+      </button>
+    )
+  }
 
   return (
     <>
@@ -202,12 +285,7 @@ export function PublishPopoverMenu({siteId, domains}) {
               ))}
             </div>
             <div className="flex justify-end p-2 bg-gray-50">
-              <button
-                onClick={() => handlePublish()}
-                className="px-4 py-2 mr-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-500"
-              >
-                Publish
-              </button>
+              {getPublishButton()}
               <button
                 onClick={() => setSelectedDomains([])}
                 className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white rounded-md border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus
